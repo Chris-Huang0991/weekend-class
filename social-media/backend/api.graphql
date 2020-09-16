@@ -7,6 +7,46 @@ type AuthPayload {
   user: User
 }
 
+type Comment implements Node {
+  author: User!
+  content: String!
+  createdAt: DateTime!
+
+  """Relay ID"""
+  id: ID!
+  postId: String!
+  userId: String!
+}
+
+type CommentConnection {
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Edge-Types
+  """
+  edges: [CommentEdge]
+
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+}
+
+type CommentEdge {
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Cursor"""
+  cursor: String!
+
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Node"""
+  node: Comment
+}
+
+input CreateCommentInput {
+  content: String!
+  postId: ID!
+}
+
+type CreateCommentPayload {
+  comment: Comment
+}
+
 input CreatePostInput {
   content: String!
 }
@@ -22,10 +62,68 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the
 """
 scalar DateTime
 
+input DeleteCommentInput {
+  commentId: ID!
+}
+
+type DeleteCommentPayload {
+  comment: Comment
+}
+
+input DeletePostInput {
+  id: ID!
+}
+
+type DeletePostPayload {
+  post: Post
+}
+
 """
 The `JSON` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar Json
+
+type Like implements Node {
+  """Relay ID"""
+  id: ID!
+  post: Post!
+  postId: String!
+  user: User!
+  userId: String!
+}
+
+type LikeConnection {
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Edge-Types
+  """
+  edges: [LikeEdge]
+
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+}
+
+type LikeEdge {
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Cursor"""
+  cursor: String!
+
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Node"""
+  node: Like
+}
+
+input LikePostInput {
+  postId: ID!
+}
+
+type LikePostPayload {
+  like: Like
+  post: Post
+}
+
+input LikeWhereUniqueInput {
+  id: String
+}
 
 input LoginInput {
   email: String!
@@ -33,9 +131,16 @@ input LoginInput {
 }
 
 type Mutation {
+  createComment(input: CreateCommentInput!): CreateCommentPayload
   createPost(input: CreatePostInput!): CreatePostPayload
+  deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
+  deletePost(input: DeletePostInput!): DeletePostPayload
+  likePost(input: LikePostInput!): LikePostPayload
   login(input: LoginInput!): AuthPayload
   signup(input: SignupInput!): AuthPayload
+  unlikePost(input: UnlikePostInput!): UnlikePostPayload
+  updateComment(input: UpdateCommentInput!): UpdateCommentPayload
+  updatePost(input: UpdatePostInput!): UpdatePostPayload
 }
 
 interface Node {
@@ -70,12 +175,25 @@ type PageInfo {
 
 type Post implements Node {
   author: User!
+  comments(
+    """Returns the elements in the list that come after the specified cursor"""
+    after: String
+
+    """Returns the elements in the list that come before the specified cursor"""
+    before: String
+
+    """Returns the first n elements from the list."""
+    first: Int
+
+    """Returns the last n elements from the list."""
+    last: Int
+  ): CommentConnection
   content: String!
   createdAt: DateTime!
 
   """Relay ID"""
   id: ID!
-  like: Int!
+  likes(after: LikeWhereUniqueInput, before: LikeWhereUniqueInput, first: Int, last: Int): [Like!]!
 }
 
 type PostConnection {
@@ -101,10 +219,6 @@ type PostEdge {
 
   """https://facebook.github.io/relay/graphql/connections.htm#sec-Node"""
   node: Post
-}
-
-input PostWhereUniqueInput {
-  id: String
 }
 
 type Query {
@@ -133,12 +247,63 @@ input SignupInput {
   password: String!
 }
 
+input UnlikePostInput {
+  postId: ID!
+}
+
+type UnlikePostPayload {
+  like: Like
+}
+
+input UpdateCommentInput {
+  commentId: ID!
+  content: String!
+}
+
+type UpdateCommentPayload {
+  comment: Comment
+}
+
+input UpdatePostInput {
+  content: String!
+  postId: ID!
+}
+
+type UpdatePostPayload {
+  post: Post
+}
+
 type User implements Node {
   avatar: String
   email: String!
 
   """Relay ID"""
   id: ID!
+  likes(
+    """Returns the elements in the list that come after the specified cursor"""
+    after: String
+
+    """Returns the elements in the list that come before the specified cursor"""
+    before: String
+
+    """Returns the first n elements from the list."""
+    first: Int
+
+    """Returns the last n elements from the list."""
+    last: Int
+  ): LikeConnection
   name: String!
-  posts(after: PostWhereUniqueInput, before: PostWhereUniqueInput, first: Int, last: Int): [Post!]!
+  posts(
+    """Returns the elements in the list that come after the specified cursor"""
+    after: String
+
+    """Returns the elements in the list that come before the specified cursor"""
+    before: String
+
+    """Returns the first n elements from the list."""
+    first: Int
+
+    """Returns the last n elements from the list."""
+    last: Int
+  ): PostConnection
 }

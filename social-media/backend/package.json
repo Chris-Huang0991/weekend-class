@@ -19,8 +19,8 @@
     "build": "nexus build",
     "start": "node .nexus/build/api",
     "test": "jest",
-    "migrate:save": "dotenv -e .env -- prisma migrate save --experimental",
-    "migrate:up": "dotenv -e .env -- prisma migrate up --experimental",
+    "migrate:save": "set DATABASE_URL=file:./dev.db && prisma migrate save --experimental",
+    "migrate:up": "set DATABASE_URL=file:./dev.db && prisma migrate up --experimental",
     "seed": "ts-node prisma/seed"
   },
   "prettier": {
