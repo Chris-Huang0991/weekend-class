@@ -31,7 +31,6 @@ schema.inputObjectType({
     t.string('email', { required: true })
     t.string('password', { required: true })
     t.string('name', { required: true })
-    t.string('avatar')
   }
 })
 schema.extendType({

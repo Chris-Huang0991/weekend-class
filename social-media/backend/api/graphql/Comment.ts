@@ -81,7 +81,6 @@ schema.extendType({
             }
           }
         })
-        console.log(comment)
         return {
           comment
         }

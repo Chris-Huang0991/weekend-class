@@ -7,6 +7,14 @@ type AuthPayload {
   user: User
 }
 
+type Avatar implements Node {
+  """Relay ID"""
+  id: ID!
+  url: String!
+  user: User!
+  userId: String!
+}
+
 type Comment implements Node {
   author: User!
   content: String!
@@ -38,6 +46,10 @@ type CommentEdge {
   node: Comment
 }
 
+type CreateAvatarPayload {
+  avatar: Avatar
+}
+
 input CreateCommentInput {
   content: String!
   postId: ID!
@@ -62,6 +74,10 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the
 """
 scalar DateTime
 
+type DeleteAvatarPayload {
+  avatar: Avatar
+}
+
 input DeleteCommentInput {
   commentId: ID!
 }
@@ -77,6 +93,8 @@ input DeletePostInput {
 type DeletePostPayload {
   post: Post
 }
+
+scalar File
 
 """
 The `JSON` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
@@ -131,8 +149,10 @@ input LoginInput {
 }
 
 type Mutation {
+  createAvatar(file: File!): CreateAvatarPayload
   createComment(input: CreateCommentInput!): CreateCommentPayload
   createPost(input: CreatePostInput!): CreatePostPayload
+  deleteAvatar: DeleteAvatarPayload
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
   deletePost(input: DeletePostInput!): DeletePostPayload
   likePost(input: LikePostInput!): LikePostPayload
@@ -241,7 +261,6 @@ type Query {
 }
 
 input SignupInput {
-  avatar: String
   email: String!
   name: String!
   password: String!
@@ -274,7 +293,7 @@ type UpdatePostPayload {
 }
 
 type User implements Node {
-  avatar: String
+  avatar: Avatar
   email: String!
 
   """Relay ID"""

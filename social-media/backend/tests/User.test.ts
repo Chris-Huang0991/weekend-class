@@ -3,48 +3,83 @@ import { createTestContext } from './__helpers'
 const ctx = createTestContext()
 
 describe('User', () => {
-  test('users should return seeded data', async () => {
-    const result = await ctx.client.send(`
-      query UsersQuery {
-        users {
-          id
-          email
-          name
-          avatar
-        }
-      }
-    `)
-
-    expect(result).toMatchSnapshot()
+  test('Signup mutation', async () => {
+    const signupPayload = await signupMutation(ctx, {
+      email:'test@gmail.com',
+      password: 'asdasd',
+      name: 'test'
+    })
+    expect(signupPayload).toHaveProperty('signup')
+    expect(signupPayload.signup).toHaveProperty('token')
+    expect(signupPayload.signup).toHaveProperty('user')
   })
-  test('node should return seeded user', async () => {
-    const result = await ctx.client.send(`
-      query UserNodeQuery {
-        node(id: "VXNlcjox") {
-          ... on User {
-            email
-            name
-            avatar
+
+  test('sign up check payload', async () => {
+    const payload = await ctx.client.send(
+      ` mutation($input: SignupInput!) {
+        signup(input: $input) {
+          token
+          user {
+            id
           }
         }
       }
-    `)
-
-    expect(result).toMatchSnapshot()
+      `,
+      {
+        input: {
+          email: '123@gmail.com',
+          password: '1232',
+          name: 'test'
+      }
+    }
+    )
+    console.log(payload)
+    expect(payload).toHaveProperty('signup')
   })
-  test('nodes should return seeded users', async () => {
-    const result = await ctx.client.send(`
-      query UserNodesQuery {
-        nodes(ids: ["VXNlcjox", "VXNlcjoy"]) {
-          ... on User {
-            email
-            name
-            avatar
+
+  test('check signup twice', async () => {
+    const payload = await ctx.client.send(
+      ` mutation($input: SignupInput!) {
+        signup(input: $input) {
+          token
+          user {
+            id
           }
         }
       }
-    `)
-
-    expect(result).toMatchSnapshot()
+      `,
+      {
+        input: {
+          email: '123@gmail.com',
+          password: '1232',
+          name: 'test'
+      }
+    }
+    ).catch((err: any)=>{
+      expect(err)
+    })
+    
   })
 })
+
+//sign up a user
+// login the user
+  //check input
+  //check payload
+//node(id: ID!) to get the user
+  //check payload
+
+const signupMutation = (ctx: any, input: any) => {
+  return ctx.client.send (
+    ` mutation($input: SignupInput!) {
+      signup(input: $input) {
+        token
+        user {
+          id
+        }
+      }
+    }
+    `,
+    { input }
+  )
+}

@@ -9,6 +9,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv-cli": "^3.2.0",
     "graphql-relay": "^0.6.0",
+    "graphql-upload": "^11.0.0",
     "jsonwebtoken": "^8.5.1",
     "nexus": "0.26.1",
     "nexus-plugin-prisma": "^0.18.1"
@@ -18,7 +19,7 @@
     "dev": "nexus dev",
     "build": "nexus build",
     "start": "node .nexus/build/api",
-    "test": "jest",
+    "test": "dotenv -e .env -- jest",
     "migrate:save": "set DATABASE_URL=file:./dev.db && prisma migrate save --experimental",
     "migrate:up": "set DATABASE_URL=file:./dev.db && prisma migrate up --experimental",
     "seed": "ts-node prisma/seed"

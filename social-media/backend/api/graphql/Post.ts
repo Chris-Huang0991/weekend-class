@@ -15,8 +15,6 @@ schema.objectType({
   }
 })
 
-
-
 schema.extendType({
   type: 'User',
   definition: t => {
@@ -34,6 +32,7 @@ schema.extendType({
       resolve: async (user, args, ctx) => {
         const postsByUser = await ctx.db.user.findOne({ where: { id: user.id }}).posts()
         const connection = connectionFromArray(postsByUser, args)
+
         return connection
       }
     })
@@ -221,12 +220,11 @@ schema.extendType({
         })
 
         if (!posts.length) throw new Error("Not your fucking post")
-
         const deletedPost = await ctx.db.post.delete({
           where: { id: postId },
         })
         return {
-          post: deletedPost
+          post: posts[0]
         }
       }
     })
