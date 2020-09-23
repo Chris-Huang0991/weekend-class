@@ -1,0 +1,29 @@
+import { createTestContext } from './__helpers'
+
+const ctx = createTestContext()
+
+describe('Post', () => {
+  test('check signup twice', async () => {
+    const payload = await ctx.client.send(
+      ` mutation($input: SignupInput!) {
+        signup(input: $input) {
+          token
+          user {
+            id
+          }
+        }
+      }
+      `,
+      {
+        input: {
+          email: '123@gmail.com',
+          password: '1232',
+          name: 'test'
+      }
+    }
+    ).catch((err: any)=>{
+      expect(err)
+    })
+    
+  })
+})
