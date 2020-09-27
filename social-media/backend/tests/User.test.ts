@@ -33,7 +33,6 @@ describe('User', () => {
       }
     }
     )
-    console.log(payload)
     expect(payload).toHaveProperty('signup')
   })
 
@@ -79,13 +78,30 @@ describe('User', () => {
       }
     }
     )
-    console.log(payload)
     expect(payload).toHaveProperty('login')
     expect(payload.login).toHaveProperty('token')
     expect(payload.login).toHaveProperty('user')
   })
 
   test('get user from node', async () => {
+    const getUserId = await ctx.client.send(
+      ` mutation($input: LoginInput!) {
+        login(input: $input) {
+          token
+          user {
+            id
+          }
+        }
+      }
+      `,
+      {
+        input: {
+          email: '1223@gmail.com',
+          password: '1232',
+      }
+    }
+    )
+    const UserId = getUserId.login.user.id
     const payload = await ctx.client.send(
       ` query($id: ID!) {
         node(id: $id) {
@@ -97,7 +113,7 @@ describe('User', () => {
       }
       `,
       {
-          id: 'VXNlcjpja2ZmOTllN3cwMDIwdXJ2OGhsemZvamt6',
+          id: UserId,
     }
     )
     expect(payload).toHaveProperty('node')
@@ -131,8 +147,26 @@ const signupMutation = (ctx: any, input: any) => {
 
 describe('Post', () => {
   test('create post', async () => {
+    const loginPayload = await ctx.client.send(
+      ` mutation($input: LoginInput!) {
+        login(input: $input) {
+          token
+          user {
+            id
+          }
+        }
+      }
+      `,
+      {
+        input: {
+          email: '1223@gmail.com',
+          password: '1232',
+        }
+      }
+    )
+    const token = loginPayload.login.token
     await ctx.client.headers.set("authorization", 
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJja2ZmOTllN3cwMDIwdXJ2OGhsemZvamt6IiwiaWF0IjoxNjAwODU5NTM0fQ.kknToiF2EsymBrc27ikCWJV1V_VjA8_IOSg3RvxTTe0")
+    `Bearer ${token}`)
     const payload = await ctx.client.send(
       ` mutation($input: CreatePostInput!) {
         createPost(input: $input) {
@@ -153,41 +187,52 @@ describe('Post', () => {
       }
     }
     )
-    console.log(payload)
     expect(payload).toHaveProperty('createPost')
     expect(payload.createPost).toHaveProperty('post')
     expect(payload.createPost.post).toHaveProperty('content')
   })
 
-  test('delete post', async () => {
-    await ctx.client.headers.set("authorization", 
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJja2ZmOTllN3cwMDIwdXJ2OGhsemZvamt6IiwiaWF0IjoxNjAwODU5NTM0fQ.kknToiF2EsymBrc27ikCWJV1V_VjA8_IOSg3RvxTTe0")
-    const payload = await ctx.client.send(
-      ` mutation($input: DeletePostInput!) {
-        deletePost(input: $input) {
-          post {
+  
+  test('update post', async () => {
+    const loginPayload = await ctx.client.send(
+      ` mutation($input: LoginInput!) {
+        login(input: $input) {
+          token
+          user {
             id
-            content
-            createdAt
           }
         }
       }
       `,
       {
         input: {
-          id: 'UG9zdDpja2ZmYWltb2IwMDYxdXJ2OGJrNTNnNmJm'
+          email: '1223@gmail.com',
+          password: '1232',
       }
     }
     )
-    console.log(payload)
-    expect(payload).toHaveProperty('deletePost')
-    expect(payload.deletePost).toHaveProperty('post')
-    expect(payload.deletePost.post).toHaveProperty('content')
-  })
+    const token = loginPayload.login.token
 
-  test('update post', async () => {
+    const postPaylod = await ctx.client.send(
+      ` query($where: PostConnetWhereInput!) {
+        login(input: $input) {
+          token
+          user {
+            id
+          }
+        }
+      }
+      `,
+      {
+        input: {
+          email: '1223@gmail.com',
+          password: '1232',
+      }
+    }
+    )
+
     await ctx.client.headers.set("authorization", 
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJja2ZmOTllN3cwMDIwdXJ2OGhsemZvamt6IiwiaWF0IjoxNjAwODU5NTM0fQ.kknToiF2EsymBrc27ikCWJV1V_VjA8_IOSg3RvxTTe0")
+    `Bearer ${token}`)
     const payload = await ctx.client.send(
       ` mutation($input: UpdatePostInput!) {
         updatePost(input: $input) {
@@ -206,65 +251,122 @@ describe('Post', () => {
       }
     }
     )
-    console.log(payload)
     expect(payload).toHaveProperty('updatePost')
     expect(payload.updatePost).toHaveProperty('post')
     expect(payload.updatePost.post).toHaveProperty('content')
     expect(payload.updatePost.post.content).toEqual('asdsa')
   })
+
+  // test('delete post', async () => {
+  //   const loginPayload = await ctx.client.send(
+  //     ` mutation($input: LoginInput!) {
+  //       login(input: $input) {
+  //         token
+  //         user {
+  //           id
+  //         }
+  //       }
+  //     }
+  //     `,
+  //     {
+  //       input: {
+  //         email: '1223@gmail.com',
+  //         password: '1232',
+  //     }
+  //   }
+  //   )
+  //   const token = loginPayload.login.token
+  //   await ctx.client.headers.set("authorization", 
+  //   `Bearer ${token}`)
+  //   const payload = await ctx.client.send(
+  //     ` mutation($input: DeletePostInput!) {
+  //       deletePost(input: $input) {
+  //         post {
+  //           id
+  //           content
+  //           createdAt
+  //         }
+  //       }
+  //     }
+  //     `,
+  //     {
+  //       input: {
+  //         id: 'UG9zdDpja2ZmYWltb2IwMDYxdXJ2OGJrNTNnNmJm'
+  //     }
+  //   }
+  //   )
+  //   expect(payload).toHaveProperty('deletePost')
+  //   expect(payload.deletePost).toHaveProperty('post')
+  //   expect(payload.deletePost.post).toHaveProperty('content')
+  // })
   
 })
 
-describe('like', () => {
-  test('like post', async () => {
-    await ctx.client.headers.set("authorization", 
-    "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJja2ZmOTllN3cwMDIwdXJ2OGhsemZvamt6IiwiaWF0IjoxNjAwODU5NTM0fQ.kknToiF2EsymBrc27ikCWJV1V_VjA8_IOSg3RvxTTe0")
-    const payload = await ctx.client.send(
-      ` mutation($input: LikePostInput!) {
-        likePost(input: $input) {
-          post {
-            id
-            content
-          }
-          like {
-            id
-          }
-        }
-      }
-      `,
-      {
-        input: {
-          postId: 'UG9zdDpja2ZmYXJ0cTIwMDgydXJ2OGVsbWx1cTU2',
-      }
-    }
-    )
-    console.log(payload)
-    expect(payload).toHaveProperty('likePost')
-    expect(payload.likePost).toHaveProperty('post')
-    expect(payload.likePost).toHaveProperty('like')
-  })
+// describe('like', () => {
+//   const loginPayload = await ctx.client.send(
+//     ` mutation($input: LoginInput!) {
+//       login(input: $input) {
+//         token
+//         user {
+//           id
+//         }
+//       }
+//     }
+//     `,
+//     {
+//       input: {
+//         email: '1223@gmail.com',
+//         password: '1232',
+//     }
+//   }
+//   )
+//   const token = loginPayload.login.token
+//   await ctx.client.headers.set("authorization", 
+//   `Bearer ${token}`)
+//     const payload = await ctx.client.send(
+//       ` mutation($input: LikePostInput!) {
+//         likePost(input: $input) {
+//           post {
+//             id
+//             content
+//           }
+//           like {
+//             id
+//           }
+//         }
+//       }
+//       `,
+//       {
+//         input: {
+//           postId: 'UG9zdDpja2ZmYXJ0cTIwMDgydXJ2OGVsbWx1cTU2',
+//       }
+//     }
+//     )
+//     expect(payload).toHaveProperty('likePost')
+//     expect(payload.likePost).toHaveProperty('post')
+//     expect(payload.likePost).toHaveProperty('like')
+//   })
 
 
-    test('unlike post', async () => {
-      await ctx.client.headers.set("authorization", 
-      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJja2ZmOTllN3cwMDIwdXJ2OGhsemZvamt6IiwiaWF0IjoxNjAwODU5NTM0fQ.kknToiF2EsymBrc27ikCWJV1V_VjA8_IOSg3RvxTTe0")
-      const payload = await ctx.client.send(
-        ` mutation($input: UnlikePostInput!) {
-          unlikePost(input: $input) {
-            like {
-              id
-            }
-          }
-        }
-        `,
-        {
-          input: {
-            postId: 'UG9zdDpja2ZmYXJ0cTIwMDgydXJ2OGVsbWx1cTU2',
-        }
-      }
-      )
-      console.log(payload)
-      expect(payload).toHaveProperty('unlikePost')
-      expect(payload.unlikePost).toHaveProperty('like')
-    })
-})
+//     test('unlike post', async () => {
+//       await ctx.client.headers.set("authorization", 
+//       "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJja2ZmOTllN3cwMDIwdXJ2OGhsemZvamt6IiwiaWF0IjoxNjAwODU5NTM0fQ.kknToiF2EsymBrc27ikCWJV1V_VjA8_IOSg3RvxTTe0")
+//       const payload = await ctx.client.send(
+//         ` mutation($input: UnlikePostInput!) {
+//           unlikePost(input: $input) {
+//             like {
+//               id
+//             }
+//           }
+//         }
+//         `,
+//         {
+//           input: {
+//             postId: 'UG9zdDpja2ZmYXJ0cTIwMDgydXJ2OGVsbWx1cTU2',
+//         }
+//       }
+//       )
+//       expect(payload).toHaveProperty('unlikePost')
+//       expect(payload.unlikePost).toHaveProperty('like')
+//     })
+// })
