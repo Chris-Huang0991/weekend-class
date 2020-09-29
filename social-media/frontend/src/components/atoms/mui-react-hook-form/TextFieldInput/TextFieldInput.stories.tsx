@@ -27,3 +27,9 @@ Outlined.args = {
   variant: 'outlined',
   name: 'outlined'
 }
+export const Outlined123 = Template.bind({})
+Outlined123.args = {
+  label: 'Outlined Input',
+  variant: 'outlined',
+  name: 'outlined'
+}
