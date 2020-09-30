@@ -9,7 +9,7 @@ const network = Network.create((operation, variables) => {
   return fetch(REACT_APP_API_ENDPOINT, {
     method: 'POST',
     headers: {
-      'content-type': 'application'
+      'content-type': 'application/json'
     },
     body: JSON.stringify({
       query: operation.text,

@@ -1,11 +1,11 @@
 import React from 'react'
-
+import { RelayEnvironmentProvider } from 'react-relay/hooks'
+import environment from 'providers/relay'
 import { Helmet } from 'react-helmet'
 import { ThemeProvider, CssBaseline } from '@material-ui/core'
 import theme from 'providers/theme'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import About from 'pages/About'
-import Home from 'pages/Home'
+import useRoutes from 'common/routes'
 
 const App = () => {
   return (
@@ -17,13 +17,18 @@ const App = () => {
         />
       </Helmet>
       <BrowserRouter >
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-            <Switch>
-              <Route path='/' exact component={Home}/>
-              <Route path='/about' exact component={About}/>
-            </Switch>
-        </ThemeProvider>
+        <RelayEnvironmentProvider environment={environment}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+              <React.Suspense fallback='Loading...'>
+                <Switch>
+                  {useRoutes().map((props, index) => 
+                    <Route key={index} {...props} />
+                  )}
+                </Switch>
+              </React.Suspense>
+          </ThemeProvider>
+        </RelayEnvironmentProvider>
       </BrowserRouter>
     </div>
   )

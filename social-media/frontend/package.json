@@ -13,6 +13,7 @@
     "@types/react-dom": "^16.9.0",
     "@types/react-relay": "^7.0.11",
     "@types/react-router-dom": "^5.1.5",
+    "get-graphql-schema": "^2.1.2",
     "react": "^0.0.0-experimental-94c0244ba",
     "react-dom": "^0.0.0-experimental-94c0244ba",
     "react-helmet": "^6.1.0",
@@ -20,6 +21,7 @@
     "react-relay": "^0.0.0-experimental-183bdd28",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
+    "relay-compiler-language-typescript": "^13.0.1",
     "typescript": "~3.7.2"
   },
   "scripts": {
@@ -31,6 +33,7 @@
     "build-sb": "build-storybook -s public",
     "update:schema": "dotenv -e .env.local yarn schema",
     "schema": "get-graphql-schema $REACT_APP_API_ENDPOINT > schema.graphql",
+    "schema:win": "get-graphql-schema http://localhost:4000/graphql > schema.graphql",
     "relay": "relay-compiler"
   },
   "eslintConfig": {

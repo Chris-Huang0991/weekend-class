@@ -1,0 +1,323 @@
+type AuthPayload {
+  token: String
+  user: User
+}
+
+type Avatar implements Node {
+  """Relay ID"""
+  id: ID!
+  url: String!
+  user: User!
+  userId: String!
+}
+
+type Comment implements Node {
+  """Relay ID"""
+  id: ID!
+  content: String!
+  createdAt: DateTime!
+  postId: String!
+  author: User!
+  userId: String!
+}
+
+type CommentConnection {
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Edge-Types
+  """
+  edges: [CommentEdge]
+
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+}
+
+type CommentEdge {
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Cursor"""
+  cursor: String!
+
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Node"""
+  node: Comment
+}
+
+type CreateAvatarPayload {
+  avatar: Avatar
+}
+
+input CreateCommentInput {
+  content: String!
+  postId: ID!
+}
+
+type CreateCommentPayload {
+  comment: Comment
+}
+
+input CreatePostInput {
+  content: String!
+}
+
+type CreatePostPayload {
+  post: Post
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the
+`date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO
+8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+type DeleteAvatarPayload {
+  avatar: Avatar
+}
+
+input DeleteCommentInput {
+  commentId: ID!
+}
+
+type DeleteCommentPayload {
+  comment: Comment
+}
+
+input DeletePostInput {
+  id: ID!
+}
+
+type DeletePostPayload {
+  post: Post
+}
+
+scalar File
+
+"""
+The `JSON` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar Json
+
+type Like implements Node {
+  """Relay ID"""
+  id: ID!
+  post: Post!
+  postId: String!
+  user: User!
+  userId: String!
+}
+
+type LikeConnection {
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Edge-Types
+  """
+  edges: [LikeEdge]
+
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+}
+
+type LikeEdge {
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Cursor"""
+  cursor: String!
+
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Node"""
+  node: Like
+}
+
+input LikePostInput {
+  postId: ID!
+}
+
+type LikePostPayload {
+  post: Post
+  like: Like
+}
+
+input LikeWhereUniqueInput {
+  id: String
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  createAvatar(file: File!): CreateAvatarPayload
+  deleteAvatar: DeleteAvatarPayload
+  createComment(input: CreateCommentInput!): CreateCommentPayload
+  updateComment(input: UpdateCommentInput!): UpdateCommentPayload
+  deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
+  createPost(input: CreatePostInput!): CreatePostPayload
+  updatePost(input: UpdatePostInput!): UpdatePostPayload
+  deletePost(input: DeletePostInput!): DeletePostPayload
+  likePost(input: LikePostInput!): LikePostPayload
+  unlikePost(input: UnlikePostInput!): UnlikePostPayload
+  signup(input: SignupInput!): AuthPayload
+  login(input: LoginInput!): AuthPayload
+}
+
+interface Node {
+  """Relay ID"""
+  id: ID!
+}
+
+"""
+PageInfo cursor, as defined in https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+"""
+type PageInfo {
+  """
+  Used to indicate whether more edges exist following the set defined by the clients arguments.
+  """
+  hasNextPage: Boolean!
+
+  """
+  Used to indicate whether more edges exist prior to the set defined by the clients arguments.
+  """
+  hasPreviousPage: Boolean!
+
+  """
+  The cursor corresponding to the first nodes in edges. Null if the connection is empty.
+  """
+  startCursor: String
+
+  """
+  The cursor corresponding to the last nodes in edges. Null if the connection is empty.
+  """
+  endCursor: String
+}
+
+type Post implements Node {
+  """Relay ID"""
+  id: ID!
+  content: String!
+  likes(first: Int, last: Int, before: LikeWhereUniqueInput, after: LikeWhereUniqueInput): [Like!]!
+  author: User!
+  createdAt: DateTime!
+  comments(
+    """Returns the first n elements from the list."""
+    first: Int
+
+    """Returns the elements in the list that come after the specified cursor"""
+    after: String
+
+    """Returns the last n elements from the list."""
+    last: Int
+
+    """Returns the elements in the list that come before the specified cursor"""
+    before: String
+  ): CommentConnection
+}
+
+type PostConnection {
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-Edge-Types
+  """
+  edges: [PostEdge]
+
+  """
+  https://facebook.github.io/relay/graphql/connections.htm#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+}
+
+input PostConnetWhereInput {
+  keyword: String
+  author_email: String
+}
+
+type PostEdge {
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Cursor"""
+  cursor: String!
+
+  """https://facebook.github.io/relay/graphql/connections.htm#sec-Node"""
+  node: Post
+}
+
+type Query {
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node!]
+  posts(
+    where: PostConnetWhereInput
+
+    """Returns the first n elements from the list."""
+    first: Int
+
+    """Returns the elements in the list that come after the specified cursor"""
+    after: String
+
+    """Returns the last n elements from the list."""
+    last: Int
+
+    """Returns the elements in the list that come before the specified cursor"""
+    before: String
+  ): PostConnection
+}
+
+input SignupInput {
+  email: String!
+  password: String!
+  name: String!
+}
+
+input UnlikePostInput {
+  postId: ID!
+}
+
+type UnlikePostPayload {
+  like: Like
+}
+
+input UpdateCommentInput {
+  content: String!
+  commentId: ID!
+}
+
+type UpdateCommentPayload {
+  comment: Comment
+}
+
+input UpdatePostInput {
+  content: String!
+  postId: ID!
+}
+
+type UpdatePostPayload {
+  post: Post
+}
+
+type User implements Node {
+  """Relay ID"""
+  id: ID!
+  email: String!
+  name: String!
+  avatar: Avatar
+  posts(
+    """Returns the first n elements from the list."""
+    first: Int
+
+    """Returns the elements in the list that come after the specified cursor"""
+    after: String
+
+    """Returns the last n elements from the list."""
+    last: Int
+
+    """Returns the elements in the list that come before the specified cursor"""
+    before: String
+  ): PostConnection
+  likes(
+    """Returns the first n elements from the list."""
+    first: Int
+
+    """Returns the elements in the list that come after the specified cursor"""
+    after: String
+
+    """Returns the last n elements from the list."""
+    last: Int
+
+    """Returns the elements in the list that come before the specified cursor"""
+    before: String
+  ): LikeConnection
+}
+
