@@ -6,7 +6,7 @@ const useRoutes = () => {
       { path:'/', exact: true, component: React.lazy(() => import(`pages/Home`)) },
       { path:'/about', exact: true, component: React.lazy(() => import(`pages/About`)) },
       { path:'/posts', exact: true, component: React.lazy(() => import(`pages/Posts`)) },
-      { path:'/post/:postId', exact: true, component: React.lazy(() => import(`pages/Card`)) }
+      { path:'/post/:postId', exact: true, component: React.lazy(() => import(`pages/PostCard`)) }
     ],
   [])
   return routes
